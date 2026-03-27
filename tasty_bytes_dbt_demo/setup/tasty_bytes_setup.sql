@@ -1,4 +1,4 @@
-USE ROLE accountadmin;
+/*USE ROLE accountadmin;
 
 CREATE OR REPLACE WAREHOUSE tasty_bytes_dbt_wh
     WAREHOUSE_SIZE = 'small'
@@ -9,40 +9,60 @@ CREATE OR REPLACE WAREHOUSE tasty_bytes_dbt_wh
     COMMENT = 'warehouse for tasty bytes dbt demo';
 
 USE WAREHOUSE tasty_bytes_dbt_wh;
+*/
+USE ROLE BI_ADMIN;
+use warehouse WH_XS;
+/*CREATE DATABASE IF NOT EXISTS TASTY_BYTES_DBT_DB_ALN;*/
+CREATE OR REPLACE SCHEMA TASTY_BYTES_DBT_DB_ALN.raw;
+CREATE OR REPLACE SCHEMA TASTY_BYTES_DBT_DB_ALN.dev;
+CREATE OR REPLACE SCHEMA TASTY_BYTES_DBT_DB_ALN.prod;
 
-CREATE DATABASE IF NOT EXISTS tasty_bytes_dbt_db;
-CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.raw;
-CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.dev;
-CREATE OR REPLACE SCHEMA tasty_bytes_dbt_db.prod;
+GRANT USAGE ON DATABASE TASTY_BYTES_DBT_DB_ALN TO ROLE BI_ADMIN;
+GRANT USAGE ON SCHEMA TASTY_BYTES_DBT_DB_ALN.DEV TO ROLE BI_ADMIN;
 
+/*
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA TASTY_BYTES_DBT_DB_ALN.DEV TO ROLE BI_ADMIN;
+GRANT ALL PRIVILEGES ON FUTURE TABLES IN SCHEMA TASTY_BYTES_DBT_DB_ALN.DEV TO ROLE BI_ADMIN;
+GRANT ALL PRIVILEGES ON ALL VIEWS IN SCHEMA TASTY_BYTES_DBT_DB_ALN.DEV TO ROLE BI_ADMIN;
+GRANT ALL PRIVILEGES ON FUTURE VIEWS IN SCHEMA TASTY_BYTES_DBT_DB_ALN.DEV TO ROLE BI_ADMIN;
+GRANT SELECT ON ALL VIEWS IN SCHEMA TASTY_BYTES_DBT_DB_ALN.RAW TO ROLE BI_ADMIN;
+GRANT SELECT ON FUTURE VIEWS IN SCHEMA TASTY_BYTES_DBT_DB_ALN.RAW TO ROLE BI_ADMIN;
+GRANT USAGE ON SCHEMA TASTY_BYTES_DBT_DB_ALN.PROD TO ROLE BI_ADMIN;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA TASTY_BYTES_DBT_DB_ALN.PROD TO ROLE BI_ADMIN;
+GRANT ALL PRIVILEGES ON FUTURE TABLES IN SCHEMA TASTY_BYTES_DBT_DB_ALN.PROD TO ROLE BI_ADMIN;
+GRANT ALL PRIVILEGES ON ALL VIEWS IN SCHEMA TASTY_BYTES_DBT_DB_ALN.PROD TO ROLE BI_ADMIN;
+GRANT ALL PRIVILEGES ON FUTURE VIEWS IN SCHEMA TASTY_BYTES_DBT_DB_ALN.PROD TO ROLE BI_ADMIN;
+*/
 
-ALTER SCHEMA tasty_bytes_dbt_db.dev SET LOG_LEVEL = 'INFO';
-ALTER SCHEMA tasty_bytes_dbt_db.dev SET TRACE_LEVEL = 'ALWAYS';
-ALTER SCHEMA tasty_bytes_dbt_db.dev SET METRIC_LEVEL = 'ALL';
+ALTER SCHEMA TASTY_BYTES_DBT_DB_ALN.dev SET LOG_LEVEL = 'INFO';
+ALTER SCHEMA TASTY_BYTES_DBT_DB_ALN.dev SET TRACE_LEVEL = 'ALWAYS';
+ALTER SCHEMA TASTY_BYTES_DBT_DB_ALN.dev SET METRIC_LEVEL = 'ALL';
 
-ALTER SCHEMA tasty_bytes_dbt_db.prod SET LOG_LEVEL = 'INFO';
-ALTER SCHEMA tasty_bytes_dbt_db.prod SET TRACE_LEVEL = 'ALWAYS';
-ALTER SCHEMA tasty_bytes_dbt_db.prod SET METRIC_LEVEL = 'ALL';
+ALTER SCHEMA TASTY_BYTES_DBT_DB_ALN.prod SET LOG_LEVEL = 'INFO';
+ALTER SCHEMA TASTY_BYTES_DBT_DB_ALN.prod SET TRACE_LEVEL = 'ALWAYS';
+ALTER SCHEMA TASTY_BYTES_DBT_DB_ALN.prod SET METRIC_LEVEL = 'ALL';
 
+/*
 CREATE OR REPLACE API INTEGRATION git_integration
   API_PROVIDER = git_https_api
   API_ALLOWED_PREFIXES = ('https://github.com/')
   ENABLED = TRUE;
+*/
 
-CREATE OR REPLACE FILE FORMAT tasty_bytes_dbt_db.public.csv_ff 
+CREATE OR REPLACE FILE FORMAT TASTY_BYTES_DBT_DB_ALN.public.csv_ff 
 type = 'csv';
 
-CREATE OR REPLACE STAGE tasty_bytes_dbt_db.public.s3load
+CREATE OR REPLACE STAGE TASTY_BYTES_DBT_DB_ALN.public.s3load
 COMMENT = 'Quickstarts S3 Stage Connection'
 url = 's3://sfquickstarts/frostbyte_tastybytes/'
-file_format = tasty_bytes_dbt_db.public.csv_ff;
+file_format = TASTY_BYTES_DBT_DB_ALN.public.csv_ff;
 
 /*--
  raw zone table build 
 --*/
 
 -- country table build
-CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.country
+CREATE OR REPLACE TABLE TASTY_BYTES_DBT_DB_ALN.raw.country
 (
     country_id NUMBER(18,0),
     country VARCHAR(16777216),
@@ -55,7 +75,7 @@ CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.country
 COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1, "minor":0}, "attributes":{"is_quickstart":1, "source":"sql"}}';
 
 -- franchise table build
-CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.franchise 
+CREATE OR REPLACE TABLE TASTY_BYTES_DBT_DB_ALN.raw.franchise 
 (
     franchise_id NUMBER(38,0),
     first_name VARCHAR(16777216),
@@ -68,7 +88,7 @@ CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.franchise
 COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1, "minor":0}, "attributes":{"is_quickstart":1, "source":"sql"}}';
 
 -- location table build
-CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.location
+CREATE OR REPLACE TABLE TASTY_BYTES_DBT_DB_ALN.raw.location
 (
     location_id NUMBER(19,0),
     placekey VARCHAR(16777216),
@@ -81,7 +101,7 @@ CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.location
 COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1, "minor":0}, "attributes":{"is_quickstart":1, "source":"sql"}}';
 
 -- menu table build
-CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.menu
+CREATE OR REPLACE TABLE TASTY_BYTES_DBT_DB_ALN.raw.menu
 (
     menu_id NUMBER(19,0),
     menu_type_id NUMBER(38,0),
@@ -98,7 +118,7 @@ CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.menu
 COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1, "minor":0}, "attributes":{"is_quickstart":1, "source":"sql"}}';
 
 -- truck table build 
-CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.truck
+CREATE OR REPLACE TABLE TASTY_BYTES_DBT_DB_ALN.raw.truck
 (
     truck_id NUMBER(38,0),
     menu_type_id NUMBER(38,0),
@@ -118,7 +138,7 @@ CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.truck
 COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1, "minor":0}, "attributes":{"is_quickstart":1, "source":"sql"}}';
 
 -- order_header table build
-CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.order_header
+CREATE OR REPLACE TABLE TASTY_BYTES_DBT_DB_ALN.raw.order_header
 (
     order_id NUMBER(38,0),
     truck_id NUMBER(38,0),
@@ -140,7 +160,7 @@ CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.order_header
 COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1, "minor":0}, "attributes":{"is_quickstart":1, "source":"sql"}}';
 
 -- order_detail table build
-CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.order_detail 
+CREATE OR REPLACE TABLE TASTY_BYTES_DBT_DB_ALN.raw.order_detail 
 (
     order_detail_id NUMBER(38,0),
     order_id NUMBER(38,0),
@@ -155,7 +175,7 @@ CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.order_detail
 COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1, "minor":0}, "attributes":{"is_quickstart":1, "source":"sql"}}';
 
 -- customer loyalty table build
-CREATE OR REPLACE TABLE tasty_bytes_dbt_db.raw.customer_loyalty
+CREATE OR REPLACE TABLE TASTY_BYTES_DBT_DB_ALN.raw.customer_loyalty
 (
     customer_id NUMBER(38,0),
     first_name VARCHAR(16777216),
@@ -180,36 +200,36 @@ COMMENT = '{"origin":"sf_sit-is", "name":"tasty-bytes-dbt", "version":{"major":1
 --*/
 
 -- country table load
-COPY INTO tasty_bytes_dbt_db.raw.country
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/country/;
+COPY INTO TASTY_BYTES_DBT_DB_ALN.raw.country
+FROM @TASTY_BYTES_DBT_DB_ALN.public.s3load/raw_pos/country/;
 
 -- franchise table load
-COPY INTO tasty_bytes_dbt_db.raw.franchise
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/franchise/;
+COPY INTO TASTY_BYTES_DBT_DB_ALN.raw.franchise
+FROM @TASTY_BYTES_DBT_DB_ALN.public.s3load/raw_pos/franchise/;
 
 -- location table load
-COPY INTO tasty_bytes_dbt_db.raw.location
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/location/;
+COPY INTO TASTY_BYTES_DBT_DB_ALN.raw.location
+FROM @TASTY_BYTES_DBT_DB_ALN.public.s3load/raw_pos/location/;
 
 -- menu table load
-COPY INTO tasty_bytes_dbt_db.raw.menu
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/menu/;
+COPY INTO TASTY_BYTES_DBT_DB_ALN.raw.menu
+FROM @TASTY_BYTES_DBT_DB_ALN.public.s3load/raw_pos/menu/;
 
 -- truck table load
-COPY INTO tasty_bytes_dbt_db.raw.truck
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/truck/;
+COPY INTO TASTY_BYTES_DBT_DB_ALN.raw.truck
+FROM @TASTY_BYTES_DBT_DB_ALN.public.s3load/raw_pos/truck/;
 
 -- customer_loyalty table load
-COPY INTO tasty_bytes_dbt_db.raw.customer_loyalty
-FROM @tasty_bytes_dbt_db.public.s3load/raw_customer/customer_loyalty/;
+COPY INTO TASTY_BYTES_DBT_DB_ALN.raw.customer_loyalty
+FROM @TASTY_BYTES_DBT_DB_ALN.public.s3load/raw_customer/customer_loyalty/;
 
 -- order_header table load
-COPY INTO tasty_bytes_dbt_db.raw.order_header
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/order_header/;
+COPY INTO TASTY_BYTES_DBT_DB_ALN.raw.order_header
+FROM @TASTY_BYTES_DBT_DB_ALN.public.s3load/raw_pos/order_header/;
 
 -- order_detail table load
-COPY INTO tasty_bytes_dbt_db.raw.order_detail
-FROM @tasty_bytes_dbt_db.public.s3load/raw_pos/order_detail/;
+COPY INTO TASTY_BYTES_DBT_DB_ALN.raw.order_detail
+FROM @TASTY_BYTES_DBT_DB_ALN.public.s3load/raw_pos/order_detail/;
 
 -- setup completion note
-SELECT 'tasty_bytes_dbt_db setup is now complete' AS note;
+SELECT 'TASTY_BYTES_DBT_DB_ALN setup is now complete' AS note;
